@@ -1,0 +1,40 @@
+Killing a process:
+    shell -> SIGNAL -> information to process 
+    process: receives Signal -> stop execution -> deal with signal -> potentially changes the flow of execution based on the information the signal delivered -> SIGNAL: software interrupts 
+    - ^C: SIGINT
+    - ^\: SIGQUIT 
+    can write python script to ignore SIGINT 
+    - SIGTERM: exit gracefully -> use the kill command: kill -TERM <pid>
+    - SIGSTOP: pause a process -> ^Z: SIGTSTOP -> terminal version of SIGSTOP; can continue the paused job to the foreground with fg or background with bg 
+    - nohup <command> e.g. nohub sleep 1000 -> prevent process from dying with terminal or use disown if process is already running
+    - SIGHUP: terminal closing -> can run kill -SIGHUP <pid> -> not work for nohup processes 
+    - ^Z and bg: to background an already running process 
+Terminal multiplexes e.g. tmux:
+    - work better when dealing with remote machines since it avoids the need to use nohup
+    - within 1 terminal, can open multiple windows and split-views (panes)
+    - all windows and panes are kept in a session -> can exit/detach a session at any time but sessions will be kept alive until tmux server is killed (e.g. when you reboot) -> can pick up where you left it by simply attaching to that session 
+    -> for remote server: when losing ssh connection -> tmux session will be detached but will keep running on the background -> to continue session, ssh to the server again and attach the running session 
+    - A new session: start with 1 window and 1 panel;
+    - tmux command: a prefix (^B) and a command key. 
+        - split vertical panel: ^B %
+        - split horizontal panel: ^B "
+        - navigating panel: ^B <arrow key>
+        - closing panel: exit or ^d 
+        - window == virtual desktop -> new window: ^b c 
+        - ^b n -> next window; ^b p -> previous window or ^b <window number>
+        - ^b d -> detach from current session and leave what you're doing in the background 
+        - tmux ls: list of all session currently running 
+        - tmux attach -t <number> -> connect to session <number>
+        - tmux new -s database -> create new session named database 
+        - tmux rename-session -t 0 database -> rename existing session 
+        - ^b ? -> list of all available commands 
+- top: display real time info about running processes 
+Aliases: short form of other commands :
+    - alias alias_name="command_to_alias arg1 arg2"
+    e.g. alias gs="git status"
+    - ignore an alias by prepend \
+    - disable an alias by unalias alias_name 
+    - get alias definition: alias ll
+    -> not persistent -> need to include in shell startup file like .bashrc or .zshrc 
+
+Dotfiles -> configuration files 

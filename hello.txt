@@ -1,0 +1,12 @@
+check 1
+foo up
+foo up
+check 2
+foo up
+check 1
+check 1
+foo up
+foo up
+check 2
+foo up
+check 1

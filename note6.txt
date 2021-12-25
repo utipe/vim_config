@@ -1,0 +1,158 @@
+Version control systems (VCSs): tools to track changes to source code -> main a history of changes and facilitate collaboration.
+Can answer questions:
+	1. Who wrote this module?
+	2. When was this line edited? by whom? why?
+	3/ over the last 100 revisions, when/why did a particular unit test stop working?
+Git data model: 
+	- folder: tree
+	- files: blob
+	- root: directory being tracked
+	- snapshot of directory
+	- each snapshot has some number of parents -> what changes precede what changes
+	- snapshot contains metadata e.g. author, message associated with commit
+pseudocode for git history:
+type blob = array<byte>
+type tree = map<string, tree|blob>
+type commit = struct{
+	parents: array<commit>,
+	author: string,
+	message: string,
+	snapshot: tree}
+how git store history:
+type object = blob|tree|commit
+objects = map<string, object>: where key is the hash of the object
+def store(object):
+	id = sha1(object)
+	objects[id] = object
+where hash takes a big chunk of data and turns it into a string, like a short name based on the content of that data
+def load(id):
+	return objects[id]
+so instead of parents: array<commit>, it would be parents: array<id>, snapshot: id, etc... so it just contains references to the object
+sha1 hash is not easily memorable -> use references which is human-readable name:
+references = map<string, string>
+references are mutable
+all git commands: manipulation of git references or object data
+
+Turn into a git repos:
+git init
+
+there should be objects and refs (references) folder in the newly created .git folder
+
+git help <command>
+
+git status: what is going on right now
+
+to take a snapshot of the current directory -> git wants to give you the flexibility of choosing which to include in the snapshot -> staging area: 
+	- Untracked files: notice there're new files but it's not included
+git add <new_file>
+git commit  -> take the snapshot -> output the hash of the newly commit snapshot
+git log -> visualize the history linearly
+git cat-file -p <sha1_string> -> details of the commit e.g. tree hash -> dig down will get blob hash -> dig down will get the content of the blob
+git log --all --graph --decorate -> display history as a graph with more recent commit at the top
+git log --all --graph --decorate --oneline -> more compact
+git checkout: move around in your version history e.g.
+	git checkout <sha1/reference_name>
+git diff <file_name> -> show what has been changed in this file compared with HEAD
+git diff <sha1> <file_name> -> compare with the snapshot sha1 -> git diff <file_name> === git diff HEAD <file_name>
+git diff <sha1_before> <sha1_after> <file_name> -> compare between sha1_before and sha1_after
+git checkout <file_name>: throw away changes in the current directory
+references:
+	- master: created by default -> refer to the main branch of development, the most up-to-date version of your project
+	- HEAD: refer to where are you at the moment
+git branch -vv: extra verbose
+git branch <name_branch> -> create new branch where the HEAD is pointing
+git merge <branch_name> -> merge the branch with the branch you're currently in
+merge with conflict:
+	git merge --abort: return to the position before merging
+	- open the file directly
+	- once fixed -> git add -> git merge --continue
+git remote -> list all the remotes that git is aware of for this repos
+git remote add <name> <url> -> add the remote from url under the <name>
+	e.g. git remote add origin github_url
+git push <remote> <local_branch>:<remote_branch> -> send the changes to remote
+	e.g. git push origin master:master -> create a master branch on the remote with the content which is the same as the master branch on my local
+git clone <url> <folder_name> -> clone the remote repos into folder_name
+
+git branch --set-upstream-to=<remote_branch_name> -> correspond the current branch with the remote_branch so that subsequent push can be done with just typing "git push"
+
+git fetch -> talk to remote repos and get the new data (not yet update)
+git pull === git fetch; git merge
+
+git config === edit using vim ~/.gitconfig
+git clone -> copy the entire repos -> git clone --shallow -> faster without the version history
+
+if in code, there're changes for debugging -> should not be included in the final version -> can interactively select which part to commit using:
+	git add -p <file_name>
+	s: split -> y for staging and n for not staging the changes
+	git diff --cached -> show which changes are for staging 
+git blame <file_name> -> who edit which line and the associated commit message
+
+git stash -> temporary stashing the changes away but not delete
+git stash pop -> undo the stash
+
+git bisect -> manually search history for sth: e.g. try to figure out when does a specific unit test breaks -> manually go back one by one to check when is the first time the test fails -> automate this process
+Can also give a unit test to git bisect and ask it to check when does this test fail
+
+-----------------------------
+PROGIT BOOK
+-----------------------------
+1. Version Control:
+a system that records changes to a file/set of files over time so that you can recall specific versions later -> can revert back to previous state, compare changes over time, see who last modified, who introduced an issue...
+Distributed Version Control Systems (DVCSs): clients fully mirror the repository including its full history -> every clone is a full backup of all the data
+Git: data== series of snapshots of a miniature filesystem -> every commit == take a picture of what all the files look like at that moment and store a reference to that snapshot
+Git has integrity: checksummed before storing -> can't lose information or get file corruption without Git detecting it -> maintain integrity by using SHA-1 hash -> calculated based on the contents of a file or directory structure in Git
+
+Git has 3 main states that your files can reside in: modified, staged, and committed:
+	1. Modified: file has been changed but has not been committed to the database
+	2. Staged: have marked a modified file iin its current version to go into you next commit snapshot
+	3. Committed: data is safely stored in local database
+-> 3 main sections: working tree, staging area, and Git directory
+	1. working tree: a single checkout of one version of the project -> placed on disk for you to use/modify
+	2. staging area: a file storing info abt what will go into your next commit
+	3. Git directory: stores the metadata and object database
+
+Basic Git workflow:
+	1. modify files in working tree
+	2. selectively stage just those changes you want to be part of your next commit
+	3. commit -> takes files as they are in the staging area and stores that snapshot permanently to git directory
+
+git config:
+	- ~/.gitconfig or ~/.config/git/config file: personal to you == git config --global -> affect all the repos you work with on your system
+	- .git/config of the current repose == git config --local -> specific to that single repos -> override the previous config 
+
+git config --list --show-origin: view all of your settings and where they are coming from
+
+Required: set user name and email address:
+git config --global user.name "John Doe"
+git config --global user.email johndoe@example.com
+
+change editor: git config --global core.editor vim
+default branch name: by default, git will create a branch called master with git init -> can reset this using: git config --global init.defaultBranch main -> set to main
+2. Git Basics
+Each file in th eworking directory can be: tracked or untracked
+	- tracked files: in the last snapshot -> can be unmodified, modified, or staged -> Git knows about
+	- untracked files: everything else -> git add <untracked_file> -> move to tracked
+can have .gitignore in subdirectories -> rules in the nested .gitignore apply only to the files under the directory it's located
+git diff -> shows exact line added/removed between working directory vs. staging area -> tells you the changes that haven't yet been staged
+
+git rm -> remove from staging area and working directory (if just rm -> will still see it in staging)
+if this file is modified or added to the staging area -> need to use -f option
+git rm --cached <file> -> remove from staging area but keep in working directory
+
+git mv file_from file_to -> rename a file in Git
+Limiting log output:
+	-git log --since=2.weeks (--until)
+	-git log -S function_name: find the last commit that added/removed a reference to a specific function (show commits that changed the number of occurrences of that string)
+	-git log -- path/to/file -> limit the log output to commits that introduced a change to those file
+
+git commit --amend: add additional file or redo the message; e.g.:
+	git commit -m "initial"
+	git add forgotten_file
+	git commit --amend -> end up with a single commit -> the 2nd commit replaces the results of the first
+-> only apply to local commits
+
+Anything that is committed on Git can almost always be recovered
+
+remote repos: versions of your projects hosted elsewhere
+manage remotes: add, remove, manage various remote branches, etc..
+git remote: show which remote servers you have configured

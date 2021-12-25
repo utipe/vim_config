@@ -1,0 +1,107 @@
+'': literal string and will not substitute variable values 
+e.g.
+foo=bar
+echo "$foo" -> print bar
+echo '$foo' -> print $foo
+
+has all control flow techniques including if, case, while, for 
+
+e.g. function to create a directory and cd into it:
+mcd(){
+    mkdir -p "$1"
+    cd "$1"
+}
+where:
+mkdir -p: create parent directory if not available
+$1 - $9: argument to the script
+$0: name of the script 
+$@: all the argument
+$#: number of arguments
+$? return code of the previous command 
+$$: process identification number (PID) for the current script 
+!!: entire last command -> quickly execute previous failed command due to permission by typing !!
+$_: last argument from the last command 
+
+return output -> STDOUT; error -> STDERR; and return code where:
+0: everything went ok; otherwise: problems
+
+conditionally execute by  && and || -> short-circuit operators
+commands can be separated by ;
+
+command substitution: $(CMD) -> execute the CMD, get the output, and substitute in place 
+e.g: for file in $(ls)
+
+process substitution: <(CMD) -> execute the CMD, place the output in a temp file, substitute <() with that file name
+-> useful when cmd expects values to be passed by files instead of by STDIN
+e.g: diff <(ls foo) <(ls bar) -> differences between files in dir foo vs. dir bar 
+
+>: STDOUT; 2>: STDERR;
+
+wildcard:
+?: 1+
+*: 0+
+image.{png,jpg}: image.png and image.jpg
+{foo,bar}/{a..h}: foo/a, foo/b, ...foo/h, bar/a, ... bar/h
+
+can call python by changing the shebang:
+#! /usr/local/bin/python
+or 
+#! /usr/bin/env python
+
+Finding files:
+find: recursively search for files matching some criteria
+find all directories named src 
+find . -name src -type d 
+find all python files with folder test in their paths 
+find . -path '*/test/*.py' -type f 
+find all files modified in the last day
+find . -mtime -1 
+find all zips with size ranging from 500k to 10M
+find . -size +500k -size -10M -name '*.tar.gz'
+delete all files with .tmp extension:
+find . -name '*.tmp' -exec rm {} \;
+find all png files and convert to jpg
+find . -name '*.png' -exec convert {} {}.jpg \;
+-iname for case insensitive 
+
+alternative: fd; locate 
+
+Finding codes:
+grep: matching patterns from input text 
+print 5 lines b4 and after the matching
+grep -C 5 
+alternative: ack, rg 
+find all python files using requests
+rg -t py 'import requests'
+find all files including hidden without shebang
+rg -u --files-without-match "^#!"
+find all matches of foo and print the following 5 lines
+rg foo -A 5
+print stats of matches (lines and files)
+rg --stats PATTERN
+
+Finding shell commands:
+history
+e.g. history | grep find 
+
+exercise
+1.
+ls -a 
+ls -a -lS -h 
+ls -a -lS -h -t 
+ls -a -lS -h -t --color 
+
+$(()): arithmetic expression
+
+xargs: normally, commands take input from both STDIN and arguments;
+piping connects STDOUT with STDIN but some commands like tar only take inputs from argument
+-> use xargs e.g. ls | xargs rm -> delete all files in the current directory 
+
+4/
+find . -name "*.html" | xargs -d "\n" tar czf allhtml.tar.gz
+5/ 
+printf -> %Tk: print modified time in k format
+format c: locale date and time
+format @: seconds
+%p: filename 
+find . -printf "%Tc %p \n" | sort -r

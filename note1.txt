@@ -1,0 +1,41 @@
+Shell: textual interface
+~: home directory
+$: not the root user
+
+shell consults environment variable $PATH -> list directories to search for the relevant programs (separated by :)
+e.g. which echo
+can bypass PATH by giving the path to the file we want to execute
+e.g. /usr/bin/echo
+
+Linux: / is the root of the file system
+Paths start with / are absolute paths 
+Relative paths are relative to current directory:
+. current directory
+.. parent directory 
+
+ls -l: drwxr-xr-x: d for directory, rwx for file's owner permission; r-x for owning group; r-x for the rest
+mv: move; cp: copy;
+man -command: get the manual page
+
+2 streams: input and output
+echo hello > hello.txt: write the output of echo hello to hello.txt
+cat < hello.txt > hello2.txt: get the input from hello.txt and write to hello2.txt 
+
+>> append; echo hello2 >> hello.txt
+| chain programs
+curl --head --silent google.com | grep --ignore-case content-length | cut --delimiter=' ' -f2
+grep: search;
+
+tee hello.txt -> record everything you type into hello.txt
+find: find file/directory
+
+sudo find -L /sys/class/backlight -maxdepth 2 -name '*brightness*'
+cd /sys/class/backlight/thinkpad_screen
+echo 3 | sudo tee brightness
+
+chmod u=rwx,g=wx,o=r filename
+
+stat ex1.sh | grep --ignore-case modify | cut --delimiter=":" -f2- | xargs > last-modified.txt
+
+cat /sys/class/thermal/thermal_zone*/temp
+cat /sys/class/power_supply/BAT0/charge_now

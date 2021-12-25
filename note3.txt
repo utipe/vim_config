@@ -1,0 +1,53 @@
+vim mode:
+1. normal: for moving around and making edits
+2. insert: for inserting text
+3. replace: for replacing text 
+4. visual: (plain, line, block) for selecting block of text 
+5. command line: for running commands 
+
+ESC: change from any mode to normal mode 
+i: enter insert mode from normal mode 
+R: replace mode from normal
+v: visual mode from normal 
+Ctrl-v (or ^v): visual block from normal 
+: : command mode from normal 
+:q -> quit (close windows)
+:w -> save and write 
+:wq -> save and quit
+:e {name of file} -> open file for editing 
+:ls -> show open buffers
+:help {topic} -> open help e.g. :help :w -> help with :w command 
+
+Normal mode: using movement commands 
+- basic movements: hjkl(left, down, up, right)
+- Words: w (next word), b (beginning of word), e (end of word)
+- Lines: 0 (beginning of line), ^ (first non-blank character), $ (end of line)
+- Screen: H (top of screen), M (middle of screen), L (bottom of screen)
+- File: gg (beginning of file), G (end of file)
+- Line number: {number}G or {number}<CR> 
+- Find: f{character} -> find on the current line; t{character}, F{}, T{} -> to forward, backward
+- ,/; -> navigating matches
+- Search:  /{regex}, n/N: navigating match
+- Edits:
+    - o/O : insert line below/above
+    - d{motion}: delete{motion} e.g. dw -> delete whole word; d$ -> delete to the end of the line 
+    - c{motion}: = d{motion}i 
+    - x: delete character 
+    - s: substitute character  = si 
+    - Visual mode + manipulation: select text and d to delete, c to change 
+    - u to undo, ^r to redo 
+    - y to copy, p to paste 
+    - ~ flip the case of the character
+- Counts: 3w -> moving 3 word forward, 5j -> moving 5 lines down ; 7dw -> delete 7 words 
+- ci( -> change inside paranthese; ci[ -> change inside square bracket; da' -> delete single quoted, including the surrounding quote 
+
+Customize VIM: ~/.vimrc
+
+Extending VIM: use the built-in package management:
+Simply create the directory ~/.vim/pack/vendor/start/, and put plugins in there (e.g. via git clone)
+
+- Search and replace: :s 
+    - %s/foo/bar/g: replace foo with bar globally
+- Multiple windows: :sp / :vsp -> split windows 
+- A: appending the current line 
+ 

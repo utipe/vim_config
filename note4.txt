@@ -1,0 +1,63 @@
+sed: stream editor
+    - 's/REGEX/SUBSTITUTION/': substitution e.g.
+    journalctl | grep sshd | grep "Disconnected from" | sed '/.*Disconnected from//'
+    -> replace everything before Disconnected from with blank
+    - REGEX most common patterns:
+        - .: any single character except new line
+        - *: 0+ the preceding match 
+        - +: 1+ the preceding match 
+        - [abc]: any one character of a,b, or c 
+        - (RX1|RX2) either match RX1 or RX2
+        - ^: start of the line 
+        - $: end of the line 
+        - suffix + or * with ? to make it non-greedy 
+        - ?: match between 0 and 1 time 
+        - [^ ]: match a single character not present in this set (a space in this case) 
+        - capture group: any text matched by a regex surrounded by parentheses is stored in a numbered captured groups \1 \2
+        e.g 's/.*Disconnected from (invalid |authenticating )?user (.*) [^ ]+ port [0-9]+( \[preauth\])?$/\2/' 
+        where \2 will come from (.*) after user 
+uniq -c : collapse consecutive lines that are the same into single line, prefix with a count of number of occurence
+    e.g. sort hello.txt | uniq -c 
+paste -sd: combine line by a given delimiter (-d) e.g. paste -sd, -> join line by comma
+awk: "optional_pattern {what to do if the pattern matches a given line with $0 -> entire line, $1 - $n -> nth field}"
+    e.g. awk '{print $2}' will match all pattern and print the 2nd field
+    can have multiple combinations of match pattern-action match pattern-action
+    - awk '$1 == 1 && $2 ~ /^c[^ ]*e$/ {print $2}' -> match if the first column equal 1, the 2nd colum word start with c and end with e and print the 2nd field
+    - awk 'BEGIN {rows=0} $1==1 && $2 ~ /^c[^ ]*e$/ {rows += $1} END {print rows}' -> BEGIN is a pattern that matches the start of the input; 
+wc: count lines (-l), word (-w), character (-c)
+
+Analysing data:
+bc -l: calculator that can read from STDIN
+    e.g sort hello.txt | uniq -c | awk '{print $1}' | paste -sd+ | bc -l -> output: 10
+    sort hello.txt | uniq -c | awk '{print $1}' | paste -sd* | bc -l -> output: 18
+    echo "2*($(sort hello.txt | uniq -c | awk '{print $1}' | paste -sd+))" | bc -l -> output: 20
+R --slave -e '' -> execute R expression then exit
+    e.g. R --slave -e 'x <- scan(file="stndin", quite=TRUE)"; summary(x)'
+gnuplot -> simple plotting
+    e.g. gnuplot -p -e 'set terminal dumb; set boxwidth 0.5; plot "-" using 1:xtic(2) with boxes'
+xargs: pipe stndout as input argument
+    e.g. rustup toolchain list | grep nightly | grep -vE "nightly-x86" | sed 's/-x86.*//' | xargs rustup toolchain uninstall
+
+------------- REGEX ------------
+\d: any digit
+\D: any non digit character
+.: any character
+\.: period 
+[abc]: only a, b, or c 
+[^abc]: not a, b, nor c
+[a-z]: characters a to z
+[0-9]: number 0 to 9
+\w: any alphanumeric character
+\W: any non-alphanumeric character 
+{m}: m repetitions 
+{m,n}: m to n repetitions 
+*: 0+ repetitions
++: 1+ repetitions 
+?: optional character (0 or 1)
+\s: any whitespace 
+\S: any non-whitespace 
+^...$: starts and ends 
+(...): capture group 
+(a(bc)): capture subgroup
+(.*): capture all
+(abc|def): matches abc or def 
