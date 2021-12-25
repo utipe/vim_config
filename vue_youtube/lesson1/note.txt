@@ -51,3 +51,12 @@ passing parent data to child component:
 v-model:modelValue="name" or just v-model="name"
 props:["modelValue"] or props:{modelValue:{type: String, default:"",required:true}}
 computed:{childValue:{get:(){return this.modelValue}}}
+
+HTML tag for table:
+
+
+HTML tag for table:
+<table></table>
+row: <tr></tr>
+cell heading: <th></th>
+cel column: <td></td>
